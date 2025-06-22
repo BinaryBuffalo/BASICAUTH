@@ -1,0 +1,428 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RMR Registration</title>
+    <style>
+        /* Global body styling to center content and hide overflow */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            background-color: #f0f0f0; /* Default background color */
+            font-family: 'Inter', sans-serif; /* Using Inter font as per instructions */
+        }
+
+        /* Particle background styling for a dynamic visual effect */
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: #222; /* Dark background for particles */
+            z-index: -1; /* Ensures particles stay behind other content */
+        }
+
+        /* Login/Registration container styling - matched to login page */
+        .login-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid rgba(209, 56, 45, 0.945); /* Reddish border from login page */
+            background-color: rgba(71, 71, 71, 0.788); /* Grey background from login page */
+            padding: 20px; /* Reverted padding to original */
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(209, 56, 45, 0.945); /* Reddish glow effect from login page */
+            max-width: 400px; /* Reverted max-width to original */
+            width: 90%; /* Responsive width */
+        }
+
+        /* Styling for all text and password input fields - matched to login page */
+        input[type="text"],
+        input[type="email"], /* Added email type for consistency */
+        input[type="password"] {
+            width: 100%;
+            padding: 7px; /* Reverted padding to original */
+            margin: 5px 0; /* Reverted vertical margin to original */
+            border: 2px solid rgba(209, 56, 45, 0.945); /* Reddish border from login page */
+            border-radius: 5px; /* Reverted border-radius to original */
+            box-sizing: border-box; /* Includes padding and border in the element's total width and height */
+            background-color: #333; /* Dark grey background from login page */
+            color: white; /* White text for typed input from login page */
+            font-size: 1em; /* Ensure consistent font size */
+        }
+
+        /* Style for placeholder text in username, email and password fields - matched to login page */
+        input[type="text"]::placeholder,
+        input[type="email"]::placeholder,
+        input[type="password"]::placeholder {
+            color: rgba(255, 255, 255, 0.7); /* Slightly faded white for placeholders (retained) */
+        }
+
+        /* Group for the action buttons at the bottom */
+        .button-group {
+            display: flex;
+            justify-content: center; /* Center buttons horizontally */
+            gap: 15px; /* Reverted space between buttons to original */
+            margin-top: 20px; /* Reverted space from captcha to original */
+            width: 100%; /* Ensure the group takes full width to center effectively */
+        }
+
+        /* Register button styling - vibrant blue with red border and glow */
+        input[type="submit"] {
+            background-color: #ff0000; /* Vibrant red background for "Register" */
+            color: rgb(0, 0, 0); /* Black text */
+            border: 2px solid rgba(209, 56, 45, 0.945); /* Reddish border */
+            padding: 10px 20px; /* Reverted padding to original */
+            border-radius: 5px; /* Reverted border-radius to original */
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            font-weight: bold; /* Make text bolder */
+            text-transform: uppercase; /* Ensure text is uppercase */
+            /* Removed subtle box-shadow */
+        }
+
+        /* Register button hover effect */
+        input[type="submit"]:hover {
+            background-color: #b30000; /* Darker red on hover */
+            box-shadow: 0px 0px 20px rgba(228, 13, 131, 0.8); /* Reverted box-shadow to original glow */
+        }
+
+        /* Login button styling (as a link styled like a button) */
+        .login-button {
+            display: inline-block; /* Make it behave like a button */
+            background-color: #333; /* Dark grey, matching other inputs */
+            color: rgb(255, 255, 255); /* White text */
+            border: 2px solid rgba(209, 56, 45, 0.945); /* Reddish border */
+            padding: 10px 20px; /* Reverted padding to original */
+            border-radius: 5px; /* Reverted border-radius to original */
+            cursor: pointer;
+            text-decoration: none; /* Remove underline for link */
+            transition: background-color 0.3s ease, color 0.3s ease;
+            font-weight: bold; /* Make text bolder */
+            text-transform: uppercase; /* Ensure text is uppercase */
+            /* Removed subtle box-shadow */
+        }
+
+        /* Login button hover effect */
+        .login-button:hover {
+            background-color: #444; /* Slightly lighter dark grey on hover */
+            color: white;
+            /* Reverted box-shadow to original hover effect (none beyond background/color transition) */
+        }
+
+        /* Error banner styling (currently hidden) */
+        .error-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: red;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            display: none; /* Hidden by default */
+            z-index: 100;
+        }
+
+        /* Captcha container for layout */
+        .captcha-container {
+            display: flex;
+            align-items: center; /* Vertically aligns captcha elements */
+            margin-top: 15px; /* Added margin-top for spacing (retained from previous iteration as it helps alignment) */
+            width: 100%;
+            justify-content: center; /* Center the captcha elements within their container */
+        }
+
+        /* Styling for the captcha image - matched to login page (height adjustment) */
+        .captcha {
+            width: 100px; /* Reverted width to original */
+            height: 45px; /* Reverted height to original */
+            border: 2px solid rgba(209, 56, 45, 0.945); /* Reddish border from login page */
+            margin-right: 10px; /* Reverted spacing between captcha image and input to original */
+            border-radius: 5px; /* Rounded corners for the image */
+            object-fit: cover; /* Ensures image covers area without distortion */
+        }
+
+        /* Styling for the captcha input field - matched to login page */
+        #id_captcha_1 {
+            width: 100px; /* Reverted width to original */
+            height: 45px; /* Reverted height to original */
+            border: 2px solid rgba(209, 56, 45, 0.945); /* Reddish border from login page */
+            display: inline-block; /* Allows side-by-side positioning with image */
+            background-color: #333; /* Dark grey background to match other fields from login page */
+            color: red; /* Red text for typed input from login page */
+            padding: 7px; /* Adjusted padding to match login page */
+            border-radius: 5px; /* Added border-radius to match login page */
+            box-sizing: border-box; /* Ensures padding doesn't increase total width/height */
+            font-size: 1.2em; /* Slightly larger font size from login page */
+            text-align: center; /* Center text in captcha input */
+        }
+
+        /* Style for placeholder text in captcha field - matched to login page */
+        #id_captcha_1::placeholder {
+            color: rgba(255, 0, 0, 0.7); /* Slightly faded red for placeholder (retained) */
+            font-size: 1.2em; /* Slightly larger font size for placeholder from login page */
+        }
+
+        /* Message container for displaying dynamic messages - matched to login page */
+        .message-container {
+            color: white; /* White text from login page */
+            padding: 10px; /* Reverted padding to original */
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            display: block; /* Ensures the message is visible */
+            z-index: 99; /* Ensure it's above particles */
+            /* Removed box-shadow */
+            font-size: 1.1em; /* Retained slightly larger font size for readability */
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .login-container {
+                padding: 20px;
+                max-width: 95%;
+            }
+            input[type="text"],
+            input[type="email"],
+            input[type="password"] {
+                padding: 7px; /* Reverted to original mobile padding */
+                margin: 5px 0; /* Reverted to original mobile margin */
+            }
+            .button-group {
+                flex-direction: column; /* Stack buttons on small screens (retained) */
+                gap: 10px; /* Smaller gap when stacked */
+            }
+            input[type="submit"],
+            .login-button {
+                width: 100%; /* Full width for stacked buttons */
+                padding: 10px 15px; /* Reverted to original mobile padding */
+            }
+            .captcha-container {
+                /* Ensured side-by-side on mobile by removing flex-direction: column */
+                display: flex; /* Explicitly set to flex for small screens too */
+                align-items: center;
+                justify-content: center; /* Center items */
+                gap: 10px; /* Small gap between captcha elements */
+                margin-bottom: 10px; /* Add margin below captcha */
+                flex-wrap: nowrap; /* Prevent wrapping for captcha elements */
+            }
+            .captcha,
+            #id_captcha_1 {
+                margin-right: 0; /* Remove right margin when side-by-side in flex */
+                width: 100px; /* Explicitly set original width */
+                height: 45px; /* Explicitly set original height */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div> <!-- Particle background container -->
+    <div class="login-container">
+        <a href="/category/home/">
+            <img src="{% static 'images/logo.png' %}" alt="Your Logo" style="width: 250px; height: 250px; border-radius: 10px; margin-bottom: 20px;">
+        </a>
+
+        <form method="post" action="{% url 'users:register' %}" id="registrationForm">
+            {% csrf_token %}
+            <div>
+                <input type="text" name="username" id="id_username" placeholder="Username" required>
+            </div>
+            <div>
+                <input type="email" name="email" id="id_email" placeholder="Email" required>
+            </div>
+            <div>
+                <input type="password" name="password" id="id_password" placeholder="Password" required>
+            </div>
+            <div class="captcha-container">
+                {# The form.captcha renders both the image and the input field provided by Django-captcha #}
+                {{ form.captcha }}
+            </div>
+            <div class="button-group">
+                <a href="{% url 'users:login_view' %}" class="login-button">LOG IN</a>
+                <input type="submit" value="REGISTER">
+            </div>
+        </form>
+    </div>
+    {% if message %}
+    <div class="message-container" style="background-color: {{ color }};">
+        {{ message|safe }}
+    </div>
+    {% endif %}
+
+    <!-- Particles.js Script -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        // Initializes Particles.js for the background animation
+        particlesJS("particles-js", {
+            particles: {
+                number: {
+                    value: 100,
+                    density: {
+                        enable: true,
+                        value_area: 800,
+                    },
+                },
+                color: {
+                    value: "#FFFFFF", /* White particles */
+                },
+                shape: {
+                    type: "circle", /* Particles are circles */
+                    stroke: {
+                        width: 0,
+                        color: "#000000",
+                    },
+                    polygon: {
+                        nb_sides: 5,
+                    },
+                    image: {
+                        src: "img/github.svg", /* Placeholder, not actively used if type is circle */
+                        width: 100,
+                        height: 100,
+                    },
+                },
+                opacity: {
+                    value: 0.5,
+                    random: true,
+                    anim: {
+                        enable: true,
+                        speed: 1,
+                        opacity_min: 0.1,
+                        sync: false,
+                    },
+                },
+                size: {
+                    value: 3,
+                    random: true,
+                    anim: {
+                        enable: true,
+                        speed: 2,
+                        size_min: 0.1,
+                        sync: false,
+                    },
+                },
+                line_linked: {
+                    enable: false, /* No lines connecting particles */
+                    distance: 150,
+                    color: "#FFFFFF",
+                    opacity: 0.4,
+                    width: 1,
+                },
+                move: {
+                    enable: true,
+                    speed: 1,
+                    direction: "none",
+                    random: true,
+                    straight: false,
+                    out_mode: "out",
+                    bounce: false,
+                    attract: {
+                        enable: false,
+                        rotateX: 600,
+                        rotateY: 600,
+                    },
+                },
+            },
+            interactivity: {
+                detect_on: "canvas",
+                events: {
+                    onhover: {
+                        enable: true,
+                        mode: "grab", /* Particles react to mouse hover by being 'grabbed' */
+                    },
+                    onclick: {
+                        enable: true,
+                        mode: "push", /* New particles are pushed on click */
+                    },
+                    resize: true, /* Particles adjust on window resize */
+                },
+                modes: {
+                    grab: {
+                        distance: 150,
+                        line_linked: {
+                            opacity: 1,
+                        },
+                    },
+                    bubble: {
+                        distance: 400,
+                        size: 40,
+                        duration: 2,
+                        opacity: 8,
+                        speed: 3,
+                    },
+                    repulse: {
+                        distance: 200,
+                        duration: 0.4,
+                    },
+                    push: {
+                        particles_nb: 4,
+                    },
+                    remove: {
+                        particles_nb: 2,
+                    },
+                },
+            },
+            retina_detect: true, /* Enables retina display detection for better rendering */
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get references to the input fields and the form
+            const usernameInput = document.getElementById('id_username');
+            const emailInput = document.getElementById('id_email');
+            const passwordInput = document.getElementById('id_password');
+            const captchaInput = document.getElementById('id_captcha_1');
+            const registrationForm = document.getElementById('registrationForm');
+
+            // Function to save input values to sessionStorage
+            const saveInputValues = () => {
+                if (usernameInput) sessionStorage.setItem('reg_username', usernameInput.value);
+                if (emailInput) sessionStorage.setItem('reg_email', emailInput.value);
+                // Note: It's generally not recommended to store password in session storage for security reasons,
+                // but included here as per user's request to retain "data fields".
+                if (passwordInput) sessionStorage.setItem('reg_password', passwordInput.value);
+            };
+
+            // Function to load input values from sessionStorage
+            const loadInputValues = () => {
+                if (usernameInput && sessionStorage.getItem('reg_username')) {
+                    usernameInput.value = sessionStorage.getItem('reg_username');
+                }
+                if (emailInput && sessionStorage.getItem('reg_email')) {
+                    emailInput.value = sessionStorage.getItem('reg_email');
+                }
+                if (passwordInput && sessionStorage.getItem('reg_password')) {
+                    // Only load password if it was previously stored (and not cleared)
+                    passwordInput.value = sessionStorage.getItem('reg_password');
+                }
+            };
+
+            // Load values when the page loads (e.g., after a captcha refresh)
+            loadInputValues();
+
+            // Add input event listeners to save values dynamically
+            if (usernameInput) usernameInput.addEventListener('input', saveInputValues);
+            if (emailInput) emailInput.addEventListener('input', saveInputValues);
+            if (passwordInput) passwordInput.addEventListener('input', saveInputValues);
+
+            // Removed the sessionStorage.removeItem call from the submit event listener.
+            // This ensures data persists if the form submission leads to a page reload (e.g., failed captcha).
+            // Data will now remain in sessionStorage until the browser tab is closed or explicitly cleared.
+
+            // JavaScript to convert captcha input to uppercase
+            if (captchaInput) {
+                captchaInput.addEventListener('input', function() {
+                    this.value = this.value.toUpperCase();
+                });
+            }
+        });
+    </script>
+</body>
+</html>

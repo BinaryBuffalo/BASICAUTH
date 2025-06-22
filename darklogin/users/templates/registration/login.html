@@ -1,0 +1,372 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RMR</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif; /* Added Inter font */
+        }
+
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: #222;
+            z-index: -1;
+        }
+        /* Add this to center the login container */
+        .center-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* This ensures the container takes up the full height of the viewport */
+        }
+
+        .login-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid rgba(209, 56, 45, 0.945);
+            background-color: rgba(71, 71, 71, 0.788);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(209, 56, 45, 0.945);
+            max-width: 400px;
+            margin-bottom: 60px;
+            width: 90%; /* Added responsive width */
+        }
+
+        /* Updated styles for username and password fields */
+        input[name="username"],
+        input[name="password"] {
+            width: 100%;
+            padding: 7px;
+            margin: 5px 0;
+            border: 2px solid rgba(209, 56, 45, 0.945);
+            border-radius: 5px;
+            box-sizing: border-box;
+            background-color: #333; /* Dark grey background */
+            color: white; /* White text for typed input */
+        }
+
+        /* Style for placeholder text in username and password fields */
+        input[name="username"]::placeholder,
+        input[name="password"]::placeholder {
+            color: white; /* White text for placeholder */
+        }
+
+        input[type="submit"] {
+            background-color: #333; /* Changed to dark grey background to match other fields */
+            color: white; /* White text */
+            border: 2px solid rgba(209, 56, 45, 0.945); /* Border matches other fields */
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s; /* Removed box-shadow from transition */
+            margin-top: 10px; /* Add margin to push the whole button down */
+            /* Removed initial box-shadow for no glow */
+            font-weight: bold; /* Make text bolder */
+            text-transform: uppercase; /* Ensure text is uppercase */
+        }
+
+        input[type="submit"]:hover {
+            background-color: #444; /* Slightly lighter dark grey on hover for subtle feedback */
+            color: white;
+            /* Removed stronger glow on hover */
+        }
+
+        .error-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: red;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            display: none;
+            z-index: 100;
+        }
+
+        .captcha-container {
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Center captcha elements */
+            margin-top: 15px; /* Added margin for spacing */
+            width: 100%; /* Ensure it takes full width */
+        }
+
+        .captcha { /* Original styling for the captcha image */
+            width: 100px;
+            height: 45px;
+            border: 2px solid rgba(209, 56, 45, 0.945);
+            margin-right: 10px;
+            border-radius: 5px; /* Added border-radius for consistency */
+        }
+
+        /* Updated styles for captcha input field */
+        #id_captcha_1 {
+            width: 100px;
+            height: 45px;
+            border: 2px solid rgba(209, 56, 45, 0.945);
+            display: inline-block;
+            background-color: #333; /* Dark grey background to match other fields */
+            color: red; /* Red text for typed input */
+            padding: 7px; /* Add padding to match other fields */
+            border-radius: 5px; /* Add border-radius to match other fields */
+            box-sizing: border-box; /* Ensures padding doesn't increase total width/height */
+            font-size: 1.2em; /* Slightly larger font size */
+            text-align: center; /* Center text */
+        }
+
+        /* Style for placeholder text in captcha field */
+        #id_captcha_1::placeholder {
+            color: red; /* Red text for placeholder */
+            font-size: 1.2em; /* Slightly larger font size for placeholder */
+        }
+
+        .message-container {
+            color: white; /* Changed to white for consistency with other text */
+            padding: 10px;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            display: block;
+            z-index: 99;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .login-container {
+                padding: 15px; /* Slightly reduced padding for mobile */
+                max-width: 95%;
+            }
+            input[name="username"],
+            input[name="password"] {
+                padding: 7px;
+                margin: 5px 0;
+            }
+            .captcha-container {
+                flex-wrap: nowrap; /* Ensure captcha and input stay side-by-side */
+                gap: 10px; /* Small gap between captcha elements */
+                margin-bottom: 10px;
+            }
+            .captcha,
+            #id_captcha_1 {
+                width: 90px; /* Adjust width slightly for small screens if needed */
+                height: 40px; /* Adjust height slightly for small screens if needed */
+                margin-right: 0; /* Remove right margin if items are tightly packed */
+            }
+            input[type="submit"] {
+                width: 100%; /* Full width for button on small screens */
+                padding: 10px 15px;
+            }
+            .message-container {
+                font-size: 0.9em; /* Smaller font for message on mobile */
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+    <div class="center-container">
+        <div class="login-container">
+            <a href="/category/home/">
+                <img src="{% static 'images/logo.png' %}" alt="Your Logo" style="width: 250px; height: 230px; border-radius: 10px; margin-bottom: 20px;">
+            </a>
+            <form method="post" action="{% url 'users:login_view' %}" id="loginForm">
+                {% csrf_token %}
+                <div>
+                    <input type="text" name="username" id="id_username" placeholder="USERNAME" required>
+                </div>
+                <div>
+                    <input type="password" name="password" id="id_password" placeholder="PASSWORD" required>
+                </div>
+                <div class="captcha-container">
+                    {# The form.captcha renders both the image and the input field #}
+                    {{ form.captcha }}
+                </div>
+                <div>
+                    <center>
+                        <input type="submit" value="Log in">
+                    </center>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% if message %}
+    <div class="message-container" style="color:black; background-color: {{ color }};">
+        {{ message|safe }}
+    </div>
+    {% endif %}
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        particlesJS("particles-js", {
+            particles: {
+                number: {
+                    value: 100,
+                    density: {
+                        enable: true,
+                        value_area: 800,
+                    },
+                },
+                color: {
+                    value: "#FFFFFF",
+                },
+                shape: {
+                    type: "circle",
+                    stroke: {
+                        width: 0,
+                        color: "#000000",
+                    },
+                    polygon: {
+                        nb_sides: 5,
+                    },
+                    image: {
+                        src: "img/github.svg",
+                        width: 100,
+                        height: 100,
+                    },
+                },
+                opacity: {
+                    value: 0.5,
+                    random: true,
+                    anim: {
+                        enable: true,
+                        speed: 1,
+                        opacity_min: 0.1,
+                        sync: false,
+                    },
+                },
+                size: {
+                    value: 3,
+                    random: true,
+                    anim: {
+                        enable: true,
+                        speed: 2,
+                        size_min: 0.1,
+                        sync: false,
+                    },
+                },
+                line_linked: {
+                    enable: false,
+                    distance: 150,
+                    color: "#FFFFFF",
+                    opacity: 0.4,
+                    width: 1,
+                },
+                move: {
+                    enable: true,
+                    speed: 1,
+                    direction: "none",
+                    random: true,
+                    straight: false,
+                    out_mode: "out",
+                    bounce: false,
+                    attract: {
+                        enable: false,
+                        rotateX: 600,
+                        rotateY: 600,
+                    },
+                },
+            },
+            interactivity: {
+                detect_on: "canvas",
+                events: {
+                    onhover: {
+                        enable: true,
+                        mode: "grab",
+                    },
+                    onclick: {
+                        enable: true,
+                        mode: "push",
+                    },
+                    resize: true,
+                },
+                modes: {
+                    grab: {
+                        distance: 150,
+                        line_linked: {
+                            opacity: 1,
+                        },
+                    },
+                    bubble: {
+                        distance: 400,
+                        size: 40,
+                        duration: 2,
+                        opacity: 8,
+                        speed: 3,
+                    },
+                    repulse: {
+                        distance: 200,
+                        duration: 0.4,
+                    },
+                    push: {
+                        particles_nb: 4,
+                    },
+                    remove: {
+                        particles_nb: 2,
+                    },
+                },
+            },
+            retina_detect: true,
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get references to the input fields and the form
+            const usernameInput = document.getElementById('id_username');
+            const passwordInput = document.getElementById('id_password');
+            const captchaInput = document.getElementById('id_captcha_1');
+            const loginForm = document.getElementById('loginForm');
+
+            // Function to save input values to sessionStorage
+            const saveInputValues = () => {
+                if (usernameInput) sessionStorage.setItem('login_username', usernameInput.value);
+                // Note: It's generally not recommended to store password in session storage for security reasons,
+                // but included here as per user's request to retain "data fields".
+                if (passwordInput) sessionStorage.setItem('login_password', passwordInput.value);
+            };
+
+            // Function to load input values from sessionStorage
+            const loadInputValues = () => {
+                if (usernameInput && sessionStorage.getItem('login_username')) {
+                    usernameInput.value = sessionStorage.getItem('login_username');
+                }
+                if (passwordInput && sessionStorage.getItem('login_password')) {
+                    // Only load password if it was previously stored (and not cleared)
+                    passwordInput.value = sessionStorage.getItem('login_password');
+                }
+            };
+
+            // Load values when the page loads (e.g., after a captcha refresh)
+            loadInputValues();
+
+            // Add input event listeners to save values dynamically
+            if (usernameInput) usernameInput.addEventListener('input', saveInputValues);
+            if (passwordInput) passwordInput.addEventListener('input', saveInputValues);
+
+            // Removed the sessionStorage.removeItem call from the submit event listener.
+            // This ensures data persists if the form submission leads to a page reload (e.g., failed captcha).
+            // Data will now remain in sessionStorage until the browser tab is closed or explicitly cleared.
+
+            // JavaScript to convert captcha input to uppercase
+            if (captchaInput) {
+                captchaInput.addEventListener('input', function() {
+                    this.value = this.value.toUpperCase();
+                });
+            }
+        });
+    </script>
+</body>
+</html>
