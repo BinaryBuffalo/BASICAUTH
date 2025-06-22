@@ -1,4 +1,4 @@
-Django Login Interface
+Login Interface
 This application provides a simple and secure login and registration interface built with Django. It's designed to be sleek and user-friendly, supporting both mobile and desktop browsers across all modern web browsers (Chrome, Brave, Edge, Safari, etc.).
 
 Features
