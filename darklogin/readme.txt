@@ -17,9 +17,7 @@ this application includes the following
 setup 
 pip install django-simple-captcha
 pip install django
-pip install 
 
-pip install 
 python manage.py migrate
 python collectstatic 
 python manage.py runserver 
